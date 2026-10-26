@@ -1,0 +1,59 @@
+<%-- order-card.jspf : kartu satu pesanan (dipakai di dalam c:forEach var="o") --%>
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-col gap-space-sm">
+  <div class="flex items-center justify-between gap-space-xs">
+    <span class="font-label-currency text-title-lg text-primary font-bold">#<c:out value="${o.orderNo}"/></span>
+    <span class="font-code-badge text-code-badge px-2 py-0.5 rounded-md font-bold uppercase ${o.orderType == 'DINE_IN' ? 'bg-[#E8F1EC] text-[#2D5A43]' : (o.orderType == 'TAKE_AWAY' ? 'bg-[#FDF4E7] text-[#C5832B]' : 'bg-secondary-container text-on-secondary-container')}"><c:out value="${o.typeLabel}"/></span>
+  </div>
+  <div class="flex items-center justify-between font-body-md text-on-surface-variant">
+    <span class="flex items-center gap-1">
+      <span class="material-symbols-outlined text-[16px]">${o.orderType == 'DINE_IN' ? 'table_restaurant' : 'person'}</span>
+      <c:choose>
+        <c:when test="${o.orderType == 'DINE_IN' && not empty o.tableNo}">Meja <c:out value="${o.tableNo}"/></c:when>
+        <c:otherwise><c:out value="${empty o.customerName ? '-' : o.customerName}"/></c:otherwise>
+      </c:choose>
+      <c:if test="${o.orderType == 'DINE_IN' && not empty o.tableNo && not empty o.customerName}"> • <c:out value="${o.customerName}"/></c:if>
+    </span>
+    <span class="font-code-badge text-code-badge ${o.elapsedMinutes >= 10 && o.status != 'SELESAI' ? 'text-error font-bold' : ''}">
+      <c:out value="${o.createdHour}"/> <c:if test="${o.status != 'SELESAI'}">(${o.elapsedMinutes} mnt)</c:if>
+    </span>
+  </div>
+  <ul class="flex flex-col gap-1 border-t border-surface-variant pt-space-sm">
+    <c:forEach var="it" items="${o.items}">
+      <li class="flex gap-2">
+        <span class="font-label-currency text-body-lg font-bold text-primary w-8 shrink-0">${it.qty}×</span>
+        <span class="flex flex-col">
+          <span class="font-body-lg text-body-lg text-on-surface"><c:out value="${it.itemName}"/></span>
+          <c:if test="${not empty it.note}"><span class="font-body-md text-on-surface-variant italic">• <c:out value="${it.note}"/></span></c:if>
+        </span>
+      </li>
+    </c:forEach>
+  </ul>
+  <c:if test="${not empty o.note}">
+    <div class="bg-secondary-fixed text-on-secondary-fixed rounded-lg px-2 py-1 font-body-md"><b>Catatan:</b> <c:out value="${o.note}"/></div>
+  </c:if>
+  <div class="flex items-center justify-between border-t border-surface-variant pt-space-sm">
+    <span class="font-label-sm text-label-sm text-on-surface-variant uppercase"><c:out value="${o.paymentLabel}"/></span>
+    <span class="font-label-currency text-label-currency text-primary">Rp <fmt:formatNumber value="${o.total}" pattern="#,##0"/></span>
+  </div>
+  <div class="flex items-center gap-space-xs">
+    <c:if test="${o.status == 'DIPROSES'}">
+      <form method="post" action="${ctx}/orders" class="flex-1">
+        <input type="hidden" name="id" value="${o.id}"><input type="hidden" name="status" value="SIAP">
+        <button class="w-full py-2 rounded-lg bg-secondary-container text-on-secondary-container font-bold hover:brightness-95 flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[18px]">done</span>Tandai Siap</button>
+      </form>
+    </c:if>
+    <c:if test="${o.status == 'SIAP'}">
+      <form method="post" action="${ctx}/orders" class="flex-1">
+        <input type="hidden" name="id" value="${o.id}"><input type="hidden" name="status" value="SELESAI">
+        <button class="w-full py-2 rounded-lg bg-tertiary-container text-on-tertiary font-bold hover:bg-tertiary flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[18px]">task_alt</span>Selesaikan</button>
+      </form>
+    </c:if>
+    <a href="${ctx}/receipt?id=${o.id}" target="_blank" title="Lihat / cetak struk" class="w-10 h-10 rounded-lg bg-surface-container-low hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant"><span class="material-symbols-outlined text-[20px]">receipt_long</span></a>
+    <c:if test="${o.status == 'DIPROSES' || o.status == 'SIAP'}">
+      <form method="post" action="${ctx}/orders" onsubmit="return confirm('Batalkan pesanan ini? Stok akan dikembalikan.');">
+        <input type="hidden" name="id" value="${o.id}"><input type="hidden" name="status" value="BATAL">
+        <button title="Batalkan pesanan" class="w-10 h-10 rounded-lg bg-surface-container-low hover:bg-error-container hover:text-error flex items-center justify-center text-on-surface-variant"><span class="material-symbols-outlined text-[20px]">cancel</span></button>
+      </form>
+    </c:if>
+  </div>
+</div>

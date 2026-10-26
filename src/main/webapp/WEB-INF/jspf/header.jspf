@@ -1,0 +1,79 @@
+<%-- header.jspf : kerangka atas (menu navigasi). Halaman harus set: pageTitle, dan servlet set: nav --%>
+<c:set var="ctx" value="${pageContext.request.contextPath}"/>
+<fmt:setLocale value="id_ID"/>
+<%@ include file="/WEB-INF/jspf/head.jspf" %>
+<body class="bg-surface font-body-md text-on-surface antialiased" data-ctx="${ctx}">
+<header class="fixed top-0 w-full z-40 bg-surface-container-lowest/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+  <div class="h-20 w-full px-gutter-desktop flex items-center justify-between gap-space-md">
+    <div class="flex items-center gap-space-lg min-w-0">
+      <a href="${ctx}/pos" class="flex items-center gap-space-md shrink-0">
+        <div class="w-9 h-9 rounded-lg bg-primary-container text-secondary-container flex items-center justify-center">
+          <span class="material-symbols-outlined text-[22px]">local_cafe</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-title-lg text-title-lg text-primary tracking-tight">Kopi Nusantara</span>
+          <span class="font-label-sm text-label-sm text-on-surface-variant font-normal">Sistem Kasir &amp; POS Warung Kopi</span>
+        </div>
+      </a>
+      <div class="h-8 w-px bg-surface-variant mx-space-xs hidden md:block"></div>
+      <nav class="hidden md:flex items-center gap-space-xs bg-surface-container-low p-space-xs rounded-xl">
+        <c:set var="on" value="px-space-md py-space-sm rounded-lg transition-colors flex items-center gap-space-xs bg-primary-container text-on-primary font-bold shadow-sm"/>
+        <c:set var="off" value="px-space-md py-space-sm rounded-lg font-body-lg text-body-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors flex items-center gap-space-xs"/>
+        <a href="${ctx}/pos" class="${nav == 'pos' ? on : off}">Dashboard Pemesanan</a>
+        <a href="${ctx}/orders" class="${nav == 'orders' ? on : off}">
+          <span class="material-symbols-outlined text-[18px]">pending_actions</span>
+          <span>Status Pesanan</span>
+          <span id="navActiveBadge" class="bg-secondary-container text-on-secondary-container font-code-badge text-code-badge px-1.5 py-0.5 rounded-full font-bold ml-1 ${activeOrders > 0 ? '' : 'hidden'}">${activeOrders}</span>
+        </a>
+        <c:if test="${sessionScope.user.admin}">
+          <a href="${ctx}/menu-admin" class="${nav == 'menu' ? on : off}">Dashboard Menu</a>
+        </c:if>
+      </nav>
+    </div>
+    <div class="flex items-center gap-space-md">
+      <div class="hidden xl:flex flex-col text-right">
+        <span id="clockTime" class="font-label-currency text-label-currency text-primary">--:--:--</span>
+        <span id="clockDate" class="font-label-sm text-label-sm text-on-surface-variant">&nbsp;</span>
+      </div>
+      <div class="flex items-center gap-space-xs">
+        <button type="button" id="btnHelp" title="Pintasan Keyboard" class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[20px]">keyboard</span></button>
+        <button type="button" id="btnFullscreen" title="Layar Penuh" class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[20px]">fullscreen</span></button>
+      </div>
+      <div class="h-8 w-px bg-surface-variant"></div>
+      <div class="flex items-center gap-space-sm pl-space-xs">
+        <div class="w-8 h-8 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-bold ring-2 ring-surface-variant">
+          <c:out value="${fn:toUpperCase(fn:substring(sessionScope.user.fullName, 0, 1))}"/>
+        </div>
+        <div class="hidden sm:flex flex-col">
+          <span class="font-body-md text-body-md text-on-surface font-semibold leading-tight"><c:out value="${sessionScope.user.fullName}"/></span>
+          <div class="flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-tertiary-container animate-pulse"></span>
+            <span class="font-code-badge text-code-badge text-tertiary-container font-medium"><c:out value="${sessionScope.user.role}"/></span>
+          </div>
+        </div>
+        <a href="${ctx}/password" title="Ganti Password" class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[20px]">key</span></a>
+        <a href="${ctx}/logout" title="Keluar" class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-container-low hover:bg-error-container hover:text-error text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[20px]">logout</span></a>
+      </div>
+    </div>
+  </div>
+  <%-- navigasi untuk layar kecil --%>
+  <nav class="md:hidden flex gap-space-xs px-gutter-desktop pb-2 overflow-x-auto">
+    <a href="${ctx}/pos" class="whitespace-nowrap px-3 py-1 rounded-lg ${nav == 'pos' ? 'bg-primary-container text-on-primary font-bold' : 'bg-surface-container-low'}">Pemesanan</a>
+    <a href="${ctx}/orders" class="whitespace-nowrap px-3 py-1 rounded-lg ${nav == 'orders' ? 'bg-primary-container text-on-primary font-bold' : 'bg-surface-container-low'}">Status Pesanan</a>
+    <c:if test="${sessionScope.user.admin}">
+      <a href="${ctx}/menu-admin" class="whitespace-nowrap px-3 py-1 rounded-lg ${nav == 'menu' ? 'bg-primary-container text-on-primary font-bold' : 'bg-surface-container-low'}">Menu</a>
+    </c:if>
+  </nav>
+</header>
+
+<%-- pesan sekali tampil --%>
+<c:if test="${not empty sessionScope.flashMsg}">
+  <div id="flash" class="fixed top-24 right-6 z-50 max-w-md px-space-lg py-space-md rounded-xl shadow-2xl flex items-center gap-space-sm ${sessionScope.flashType == 'ok' ? 'bg-tertiary text-on-tertiary' : 'bg-error text-on-error'}">
+    <span class="material-symbols-outlined">${sessionScope.flashType == 'ok' ? 'check_circle' : 'error'}</span>
+    <span class="font-body-lg"><c:out value="${sessionScope.flashMsg}"/></span>
+    <button type="button" onclick="document.getElementById('flash').remove()" class="ml-2 opacity-80 hover:opacity-100"><span class="material-symbols-outlined text-[18px]">close</span></button>
+  </div>
+  <c:remove var="flashMsg" scope="session"/>
+  <c:remove var="flashType" scope="session"/>
+</c:if>
+<main class="w-full pt-20 md:pt-20 bg-surface min-h-[calc(100vh-3.5rem)]">

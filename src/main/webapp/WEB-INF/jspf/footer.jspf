@@ -1,0 +1,31 @@
+<%-- footer.jspf --%>
+</main>
+<footer class="w-full bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] py-space-md no-print">
+  <div class="w-full px-gutter-desktop flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
+    <span>© Kopi Nusantara POS • Terminal Warung Kopi v1.0</span>
+    <div class="flex items-center gap-space-md font-code-badge text-code-badge">
+      <span>Database: MySQL (XAMPP)</span><span>•</span><span>Struk: Cetak via browser</span>
+    </div>
+  </div>
+</footer>
+<script>
+  (function () {
+    var t = document.getElementById('clockTime'), d = document.getElementById('clockDate');
+    function tick() {
+      var n = new Date();
+      if (t) t.textContent = n.toLocaleTimeString('id-ID', {hour12: false}).replace(/\./g, ':');
+      if (d) d.textContent = n.toLocaleDateString('id-ID', {weekday: 'long', day: 'numeric', month: 'short', year: 'numeric'});
+    }
+    tick(); setInterval(tick, 1000);
+    var fs = document.getElementById('btnFullscreen');
+    if (fs) fs.addEventListener('click', function () {
+      if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen();
+    });
+    var h = document.getElementById('btnHelp');
+    if (h) h.addEventListener('click', function () {
+      alert('Pintasan keyboard (halaman kasir):\n\nCtrl+K  : cari menu\nF4      : diskon\nF9      : bayar & cetak struk');
+    });
+  })();
+</script>
+</body>
+</html>
